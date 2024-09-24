@@ -48,43 +48,44 @@ public class SongController {
 
     @Autowired
     private UserRepository userRepo;
+
+
     @Transactional
     @GetMapping("/info/{id}")
-    public ResponseEntity<Song> getSong(@PathVariable("id") int id, @RequestParam("email") String email) throws UserException, SongException {
+    public Song getSong(@PathVariable("id") int id, @RequestParam("email") String email) throws UserException, SongException {
         Song str1 = songService.getSong(id,email);
 
-        return ResponseEntity.ok(str1);
+        return str1;
     }
 
     @Transactional
     @PostMapping("/upload")
-    public UploadFileResponse upload(@RequestParam("email") String email, @RequestParam("title") String title, @RequestParam("artist") String artist, @RequestParam("file") MultipartFile file123, HttpServletResponse response) throws Exception {
-        UploadFileResponse xyz;
-        try{
-            xyz = songService.createSong(title,artist,email,file123);
-            return xyz;
-        }catch(IOException e){
-            throw new UncheckedIOException(e);
-        }
-
+    public ResponseEntity<Song> upload(@RequestParam("email") String email, @RequestParam("title") String title, @RequestParam("artist") String artist, @RequestParam("file") MultipartFile file123, HttpServletResponse response) throws Exception {
+        Song str1 = songService.createSong(title,artist,email,file123);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDispositionFormData("attachment", file123.getOriginalFilename());
+        return ResponseEntity.ok().headers(headers).body(str1);
 
     }
     @Transactional
     @PutMapping("/editSong/{song_id}")
-    public ResponseEntity<Song> editSong(@PathVariable("song_id") Integer song_id, @RequestParam("title") String title, @RequestParam("artist") String artist, @RequestParam("email") String email) throws UserException, SongException, IOException {
+    public ResponseEntity<Song> editSong(@PathVariable("song_id") int song_id, @RequestParam("title") String title, @RequestParam("artist") String artist, @RequestParam("email") String email) throws UserException, SongException, IOException {
         Song song1 = songService.updateSong(title,artist,song_id,email);
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.parseMediaType("application/octet-stream"));
-        return ResponseEntity.ok().headers(httpHeaders).body(song1);
+
+        return ResponseEntity.ok().body(song1);
 
     }
     @Transactional
     @DeleteMapping("/deleteSong/{song_id}")
-    public ResponseEntity<Song> delete_song(@PathVariable("song_id") Integer song_id, @RequestParam("email") String email) throws  UserException, SongException {
+    public ResponseEntity<Song> delete_song(@PathVariable("song_id") int song_id, @RequestParam("email") String email) throws  UserException, SongException {
         Song song1 = songService.deleteSong(song_id,email);
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.parseMediaType("application/octet-stream"));
-        return ResponseEntity.ok().headers(httpHeaders).body(song1);
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        httpHeaders.setContentLength(0);
+        httpHeaders.setCacheControl("no-cache");
+        httpHeaders.setPragma("no-cache");
+        httpHeaders.setExpires(0);
+        return ResponseEntity.ok().body(song1);
 
     }
     @Transactional
@@ -96,15 +97,11 @@ public class SongController {
 
     @Transactional
     @GetMapping("/download/{fileName:.+}")
-    public ResponseEntity<Resource> serveFile(@PathVariable(value = "filename", required = false) String filename, HttpServletRequest request) throws IOException, MentionedFileNotFoundException {
+    public ResponseEntity<Resource> serveFile(@PathVariable(value = "fileName") String filename, HttpServletRequest request) throws IOException, MentionedFileNotFoundException {
 
         Resource resource = songService.loadFileAsResource(filename);
         String contentType = null;
-        try {
-            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-        } catch (IOException e) {
-            logger.info("Could not determine file type.");
-        }
+        contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
         if (contentType == null) {
             logger.info("Could not determine file type.");
         }

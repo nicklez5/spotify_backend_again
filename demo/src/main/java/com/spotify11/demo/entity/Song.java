@@ -27,13 +27,15 @@ public class Song {
 
     private String title;
     private String artist;
-    private String file_download_uri;
-    private String file_uri;
-    public Song(String title, String artist, String file_download_uri, String file_uri) {
+    private String fileDownloadUri;
+    private String fileName;
+
+    public Song(String title, String artist, String fileDownloadUri) {
         this.title = title;
         this.artist = artist;
-        this.file_download_uri = file_download_uri;
-        this.file_uri = file_uri;
+        this.fileDownloadUri = fileDownloadUri;
+        this.fileName = fileDownloadUri.substring(fileDownloadUri.lastIndexOf("/") + 1);
+
     }
 
 

@@ -14,10 +14,11 @@ import com.spotify11.demo.repo.UserRepository;
 import jakarta.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 
-
+@CrossOrigin
 @Service
 public class PlaylistImpl implements PlaylistService {
 
@@ -35,7 +36,6 @@ public class PlaylistImpl implements PlaylistService {
         this.libraryRepo = libraryRepo;
     }
 
-
     @Override
     public String getPlaylistName(String email) throws UserException {
         if(userRepo.findByEmail(email).isPresent()){
@@ -46,94 +46,53 @@ public class PlaylistImpl implements PlaylistService {
             throw new UserException("you are not present my lord:" + email);
         }
     }
+
     @Transactional
     @Override
-    public String addSong(Integer song_id, String email) throws Exception {
-        String xyz = "song was never added";
+    public Playlist addSong(int song_id, String email) throws Exception {
+
         if (userRepo.findByEmail(email).isPresent()) {
             User user = userRepo.findByEmail(email).get();
-            boolean sound_found = false;
-            if(songRepo.findById(song_id).isPresent()){
-                sound_found = true;
-                Song song = songRepo.findById(song_id).get();
-                user.getLibrary().addSong(song, email);
-            }
-
-
-            if(sound_found){
-                return "THE SONG has been added to " + email;
-            }else{
-                return "SORRY the sorry is missing";
-            }
+            songRepo.findById(song_id).ifPresent(song -> {
+                user.getPlaylist().getSongs().add(song);
+            });
+        }else{
+            throw new Exception("Homie wasnt here");
         }
-        return xyz;
+        return null;
 
 
     }
+
     @Transactional
     @Override
-    public String removeSong(int song_id, String email) throws SongException, UserException {
+    public Playlist removeSong(int song_id, String email) throws SongException, UserException {
     if(userRepo.findByEmail(email).isPresent()) {
         User user1 = userRepo.findByEmail(email).get();
-        if(songRepo.findById(song_id).isPresent()){
-            Song song = songRepo.findById(song_id).get();
-            user1.getPlaylist().getSongs().remove(song);
-            userRepo.save(user1);
-            return STR."Song title:\{song.getTitle()} removed from playlist";
-        }else{
-            throw new SongException("Song does not exist");
-        }
+        Song song = songRepo.findById(song_id).get();
+        user1.getPlaylist().getSongs().remove(song);
+        userRepo.save(user1);
+        return user1.getPlaylist();
+
 
     }else{
         throw new UserException("User does not exist");
     }
 
 }
-    @Transactional
-    @Override
-    public String readPlaylist(String email) throws Exception {
-            if(userRepo.findByEmail(email).isPresent()) {
-                User user = userRepo.findByEmail(email).get();
-                Playlist playlist1 = user.getPlaylist();
-                List<Song> xyz3 = playlist1.getSongs();
-                String xyz = "";
-                for(Song song : xyz3 ){
-                    xyz += song.getTitle() + " " + song.getArtist() + "\n";
-                    System.out.println(song.getTitle() + " " + song.getArtist());
-                }
-                return xyz;
-            }else{
-                throw new UserException("User is not present");
-            }
 
-
-    }
-    @Override
-    public String readPlaylistSongs(String email) throws Exception {
-        if(userRepo.findByEmail(email).isPresent()) {
-            User user = userRepo.findByEmail(email).get();
-            Playlist playlist1 = user.getPlaylist();
-            List<Song> xyz3 = playlist1.getSongs();
-            String xyz = "";
-            for(Song song : xyz3 ){
-                //xyz = song.getTitle() + " " + song.getArtist() + "\n";
-                System.out.println(song.getTitle() + " " + song.getArtist());
-            }
-            return xyz;
-        }else{
-            throw new UserException("User is not present");
-        }
-    }
 
 
 
     @Transactional
-    public String renamePlaylist(String email, String playlist_name) throws UserException {
+    @Override
+    public Playlist renamePlaylist(String email, String playlist_name) throws UserException {
             if(userRepo.findByEmail(email).isPresent()) {
                 User user = userRepo.findByEmail(email).get();
                 user.getPlaylist().setPlaylistName(playlist_name);
                 userRepo.save(user);
-                return "Your playlist have been renamed to " + playlist_name;
+                Playlist playlist1 = user.getPlaylist();
+                return playlist1;
             }
 
         return null;
@@ -141,13 +100,14 @@ public class PlaylistImpl implements PlaylistService {
 
     @Transactional
     @Override
-    public String clearPlaylist(String email) throws UserException {
+    public Playlist clearPlaylist(String email) throws UserException {
             if(userRepo.findByEmail(email).isPresent()) {
                 User user = userRepo.findByEmail(email).get();
                 Playlist ply1 = user.getPlaylist();
                 user.getPlaylist().getSongs().clear();
                 userRepo.save(user);
-                return "Playlist name:" + ply1.getPlaylistName() + " has been cleared";
+                return ply1;
+
             }else{
                 throw new UserException("User is not present");
             }
@@ -168,18 +128,6 @@ public class PlaylistImpl implements PlaylistService {
 
     }
 
-    @Override
-    public String namePlaylist(String email, String name) throws Exception {
-        if(userRepo.findByEmail(email).isPresent()){
-            User user = userRepo.findByEmail(email).get();
-            Playlist playlist1 = user.getPlaylist();
-            playlist1.setPlaylistName(name);
-            playlistRepo.save(playlist1);
-            return "Your playlist has been renamed to: " + name;
-        }else{
-            throw new Exception("User cannot be found");
-        }
-    }
 
 
 }

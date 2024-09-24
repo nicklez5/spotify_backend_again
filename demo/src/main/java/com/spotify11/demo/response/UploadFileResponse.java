@@ -14,17 +14,15 @@ public class UploadFileResponse {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String fileName;
-    private URI fileDownloadUri;
-    private String fileType;
     private long size;
+    private String uri;
 
 
-    public UploadFileResponse(Integer song_id2, String fileName, String fileDownloadUri, String fileType, long size) {
-        this.fileName = fileName;
+    public UploadFileResponse(Integer song_id2, String fileName, String filedownloaduri, long size) {
         this.id = song_id2;
-        this.fileDownloadUri = URI.create(fileDownloadUri);
-        this.fileType = fileType;
+        this.fileName = fileName;
         this.size = size;
+        this.uri = filedownloaduri;
 
     }
 

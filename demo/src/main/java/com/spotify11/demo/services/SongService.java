@@ -6,7 +6,6 @@ import com.spotify11.demo.exception.MentionedFileNotFoundException;
 import com.spotify11.demo.exception.SongException;
 
 import com.spotify11.demo.exception.UserException;
-import com.spotify11.demo.response.UploadFileResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +27,7 @@ public interface SongService {
 
 
     @Transactional
-    UploadFileResponse createSong(String title, String artist, String email, MultipartFile file123) throws Exception;
+    Song createSong(String title, String artist, String email, MultipartFile file123) throws Exception;
 
     @Transactional
     Song updateSong(String title, String artist, Integer song_id, String email) throws UserException;
