@@ -2,7 +2,6 @@ package com.spotify11.demo.services;
 
 import com.spotify11.demo.entity.Song;
 import com.spotify11.demo.entity.User;
-
 import com.spotify11.demo.exception.FileStorageException;
 import com.spotify11.demo.exception.MentionedFileNotFoundException;
 import com.spotify11.demo.exception.SongException;
@@ -24,13 +23,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.*;
 import java.net.MalformedURLException;
-import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.net.URLEncoder;
 
 @Service
 public class SongImpl implements SongService {
@@ -90,9 +87,12 @@ public class SongImpl implements SongService {
         }
 
     }
+
+
+
     @Transactional
     @Override
-    public Song updateSong(String title, String artist ,Integer song_id, String email) throws UserException {
+    public Song updateSong(String title, String artist, int song_id, String email) throws UserException {
 
             User user = userRepo.findByEmail(email).get();
             List<Song> xyz = user.getLibrary().getSongs();
@@ -108,6 +108,8 @@ public class SongImpl implements SongService {
 
         return null;
     }
+
+
 
     @Transactional
     @Override
@@ -137,24 +139,18 @@ public class SongImpl implements SongService {
 
     @Transactional
     @Override
-    public Song deleteSong(int song_id, String email) throws SongException {
+    public String deleteSong(int song_id, String email) throws SongException {
 
             if(userRepo.findByEmail(email).isPresent()){
                 User user = userRepo.findByEmail(email).get();
-                List<Song> xyz = user.getLibrary().getSongs();
-                for(Song song : xyz){
-                    if(song.getId() == song_id){
-                        user.getLibrary().removeSong(song);
-                        songRepo.delete(song);
-
-                        return song;
-                    }
-                }
+                Song xyz = user.getLibrary().getSongs().get(song_id);
+                user.getLibrary().removeSong(xyz);
+                return songRepo.save(xyz).getTitle();
             }else{
-                throw new SongException("Song does not exist");
+                throw new SongException("Song cant be foundexist");
             }
 
-            return null;
+
 
     }
 
@@ -166,8 +162,7 @@ public class SongImpl implements SongService {
             List<Song> xyz = user.getLibrary().getSongs();
             for (Song song : xyz) {
                 if (song.getId() == song_id) {
-                    return this.songRepo.findById(song_id).get();
-
+                        return song;
                 }
             }
             throw new SongException("Song id:" + song_id + " has not been found");

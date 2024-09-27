@@ -1,5 +1,7 @@
 package com.spotify11.demo.configuration;
 
+
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;

@@ -31,7 +31,7 @@ public class SecurityConfiguration  {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf
-                .disable())
+                        .disable())
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/users/**", "/library/**","/playlist/**","/songs/**")
                         .permitAll()

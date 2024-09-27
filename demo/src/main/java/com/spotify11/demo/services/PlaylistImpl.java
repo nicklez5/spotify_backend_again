@@ -16,6 +16,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import java.util.Iterator;
 import java.util.List;
 
 @CrossOrigin
@@ -53,46 +54,40 @@ public class PlaylistImpl implements PlaylistService {
 
         if (userRepo.findByEmail(email).isPresent()) {
             User user = userRepo.findByEmail(email).get();
-            songRepo.findById(song_id).ifPresent(song -> {
-                user.getPlaylist().getSongs().add(song);
-            });
+            Playlist playlist1 = user.getPlaylist();
+            Song song1 = songRepo.findById(song_id).get();
+            playlist1.getSongs().add(song1);
+            playlistRepo.save(playlist1);
+            userRepo.save(user);
+            return playlist1;
+
+
         }else{
             throw new Exception("Homie wasnt here");
         }
-        return null;
+
 
 
     }
 
-    @Transactional
-    @Override
-    public Playlist removeSong(int song_id, String email) throws SongException, UserException {
-    if(userRepo.findByEmail(email).isPresent()) {
-        User user1 = userRepo.findByEmail(email).get();
-        Song song = songRepo.findById(song_id).get();
-        user1.getPlaylist().getSongs().remove(song);
-        userRepo.save(user1);
-        return user1.getPlaylist();
 
 
-    }else{
-        throw new UserException("User does not exist");
-    }
-
-}
 
 
 
 
     @Transactional
     @Override
-    public Playlist renamePlaylist(String email, String playlist_name) throws UserException {
+    public String renamePlaylist(String email, String playlist_name) throws UserException {
             if(userRepo.findByEmail(email).isPresent()) {
                 User user = userRepo.findByEmail(email).get();
-                user.getPlaylist().setPlaylistName(playlist_name);
-                userRepo.save(user);
                 Playlist playlist1 = user.getPlaylist();
-                return playlist1;
+                playlist1.setPlaylistName(playlist_name);
+                playlistRepo.save(playlist1);
+                userRepo.save(user);
+
+                return "Your playlist has been renamed to " + playlist_name;
+
             }
 
         return null;
@@ -106,6 +101,8 @@ public class PlaylistImpl implements PlaylistService {
                 Playlist ply1 = user.getPlaylist();
                 user.getPlaylist().getSongs().clear();
                 userRepo.save(user);
+
+
                 return ply1;
 
             }else{
@@ -127,7 +124,23 @@ public class PlaylistImpl implements PlaylistService {
 
 
     }
+    @Transactional
+    @Override
+    public Playlist removeSong(int song_id, String email) throws SongException, UserException {
+        if(userRepo.findByEmail(email).isPresent()) {
+            User user = userRepo.findByEmail(email).get();
+            Playlist playlist1 = user.getPlaylist();
+            Song song1 = songRepo.findById(song_id).orElse(null);
+            playlist1.getSongs().remove(song1);
+            playlistRepo.save(playlist1);
+            userRepo.save(user);
+            return playlist1;
 
+        }else{
+            throw new UserException("User is not present");
+        }
+
+    }
 
 
 }

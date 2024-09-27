@@ -18,21 +18,17 @@ import java.util.List;
 public interface SongService {
 
 
-
-
+    @Transactional
+    Song updateSong(String title, String artist, int song_id, String email) throws UserException;
 
     Resource loadFileAsResource (String filename) throws FileNotFoundException, MentionedFileNotFoundException;
     File multipartFile(MultipartFile file, String fileName) throws IOException;
 
 
-
     @Transactional
     Song createSong(String title, String artist, String email, MultipartFile file123) throws Exception;
 
-    @Transactional
-    Song updateSong(String title, String artist, Integer song_id, String email) throws UserException;
-
-    Song deleteSong(int song_id, String email) throws UserException, SongException;
+    String deleteSong(int song_id, String email) throws UserException, SongException;
     Song getSong(int id, String email) throws  UserException,SongException;
     Song getSong(String title, String email) throws  UserException,SongException;
     List<Song> getAllSongs(String email) throws UserException, SongException;

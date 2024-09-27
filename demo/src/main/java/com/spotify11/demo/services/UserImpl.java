@@ -7,6 +7,8 @@ import com.spotify11.demo.entity.*;
 
 import com.spotify11.demo.exception.UserException;
 
+import com.spotify11.demo.repo.PlaylistRepo;
+import com.spotify11.demo.repo.SongRepo;
 import com.spotify11.demo.repo.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +26,13 @@ public class UserImpl implements UserService {
     @Autowired
     private UserRepository userRepo;
 
+
+
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     public UserImpl(UserRepository userRepo) {
         this.userRepo = userRepo;
+
     }
 
 

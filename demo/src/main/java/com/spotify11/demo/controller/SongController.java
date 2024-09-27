@@ -77,8 +77,8 @@ public class SongController {
     }
     @Transactional
     @DeleteMapping("/deleteSong/{song_id}")
-    public ResponseEntity<Song> delete_song(@PathVariable("song_id") int song_id, @RequestParam("email") String email) throws  UserException, SongException {
-        Song song1 = songService.deleteSong(song_id,email);
+    public ResponseEntity<String> delete_song(@PathVariable("song_id") int song_id, @RequestParam("email") String email) throws  UserException, SongException {
+        String song1 = songService.deleteSong(song_id,email);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         httpHeaders.setContentLength(0);

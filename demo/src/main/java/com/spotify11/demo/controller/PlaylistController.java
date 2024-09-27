@@ -8,6 +8,7 @@ import com.spotify11.demo.exception.PlaylistException;
 
 import com.spotify11.demo.exception.UserException;
 
+import com.spotify11.demo.repo.PlaylistRepo;
 import com.spotify11.demo.repo.UserRepository;
 import com.spotify11.demo.services.PlaylistService;
 
@@ -18,16 +19,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
-@CrossOrigin
 @RestController
 @RequestMapping("/playlist")
 public class PlaylistController {
 
     private final PlaylistService playlistService;
+    private PlaylistRepo playlistRepo;
     private final UserRepository userRepo;
-    public PlaylistController(PlaylistService playlistService, UserRepository userRepo) {
+    public PlaylistController(PlaylistService playlistService, UserRepository userRepo, PlaylistRepo playlistRepo) {
         this.playlistService = playlistService;
         this.userRepo = userRepo;
+        this.playlistRepo = playlistRepo;
     }
 
 
@@ -47,19 +49,20 @@ public class PlaylistController {
     public ResponseEntity<Playlist> addSongForPlaylist(@PathVariable("song_id") int song_id, @RequestParam("email") String email) throws Exception {
         try{
             Playlist playlist1 = playlistService.addSong(song_id, email);
+            playlistRepo.save(playlist1);
             return ResponseEntity.ok(playlist1);
         } catch (Exception e) {
-
             throw new Exception("Song ID: " + song_id + "could not be found");
         }
 
     }
 
-    @Transactional
+
     @DeleteMapping("/removeSong/{song_id}")
     public ResponseEntity<Playlist> removeSongFromPlaylist(@PathVariable("song_id") int song_id, @RequestParam("email") String email) throws Exception {
         try{
             Playlist playlist1 = playlistService.removeSong(song_id, email);
+            playlistRepo.save(playlist1);
             return ResponseEntity.ok(playlist1);
         } catch (Exception e) {
             throw new Exception("Song name: " + song_id + "could not be found");
@@ -84,8 +87,8 @@ public class PlaylistController {
 
     @Transactional
     @PostMapping("/rename")
-    public ResponseEntity<Playlist> renamePlaylist(@RequestParam("email") String email, @RequestParam("playlist_name") String playlist_name) throws UserException, PlaylistException {
-        Playlist str3 = playlistService.renamePlaylist(email,playlist_name);
+    public ResponseEntity<String> renamePlaylist(@RequestParam("email") String email, @RequestParam("playlist_name") String playlist_name) throws UserException, PlaylistException {
+        String str3 = playlistService.renamePlaylist(email,playlist_name);
         return ResponseEntity.ok(str3);
     }
     // CLEAR
